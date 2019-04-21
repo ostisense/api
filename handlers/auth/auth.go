@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"errors"
@@ -56,20 +56,22 @@ func getUserTokenFromHeader(context *gin.Context) (userModel.SecureToken, error)
 	return userModel.SecureToken(token), nil
 }
 
-func RequireUserMiddleware(context *gin.Context) {
-	token, err := getUserTokenFromHeader(context)
-	if err != nil {
-		context.AbortWithError(http.StatusUnauthorized, err)
-	}
-	user, err := userModel.FetchUserByToken(token)
-	if err != nil {
-		context.AbortWithError(http.StatusUnauthorized, err)
-	}
-	err = user.Validate()
-	if err != nil {
-		context.AbortWithError(http.StatusUnauthorized, err)
-	}
+func RequireUserMiddleware() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		token, err := getUserTokenFromHeader(context)
+		if err != nil {
+			context.AbortWithError(http.StatusUnauthorized, err)
+		}
+		user, err := userModel.FetchUserByToken(token)
+		if err != nil {
+			context.AbortWithError(http.StatusUnauthorized, err)
+		}
+		err = user.Validate()
+		if err != nil {
+			context.AbortWithError(http.StatusUnauthorized, err)
+		}
 
-	context.Set("user", user)
-	context.Next()
+		context.Set("user", user)
+		context.Next()
+	}
 }
