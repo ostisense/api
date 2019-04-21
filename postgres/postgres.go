@@ -24,7 +24,7 @@ func SharedDB() *sqlx.DB {
 }
 
 func postgresURL() (url string) {
-	return os.Getenv("POSTGRES_URL")
+	return os.Getenv("DATABASE_URL")
 }
 
 func newDB() *sqlx.DB {
