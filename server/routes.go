@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/tsheaff/api/handlers/auth"
-	"github.com/tsheaff/api/handlers/session"
+	"github.com/ostisense/api/handlers/auth"
+	"github.com/ostisense/api/handlers/session"
 )
 
 func (self *APIServer) RegisterRoutes() {

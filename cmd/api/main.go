@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/ostisense/api/postgres"
+	"github.com/ostisense/api/server"
 	"github.com/sirupsen/logrus"
-	"github.com/tsheaff/api/postgres"
-	"github.com/tsheaff/api/server"
 )
 
 func main() {

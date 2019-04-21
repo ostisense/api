@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	userModel "github.com/tsheaff/api/models/user"
+	userModel "github.com/ostisense/api/models/user"
 )
 
 type postAuthSignupBody struct {

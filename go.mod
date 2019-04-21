@@ -1,4 +1,4 @@
-module github.com/tsheaff/api
+module github.com/ostisense/api
 
 go 1.12
 

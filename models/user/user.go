@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/tsheaff/api/postgres"
-	"github.com/tsheaff/api/utils/string_utils"
+	"github.com/ostisense/api/postgres"
+	"github.com/ostisense/api/utils/string_utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
