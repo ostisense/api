@@ -46,7 +46,8 @@ func CreateTables() error {
 	logrus.Info("Postgres : Initializing Schema")
 
 	fileContents := []string{}
-	schemaDirectory := "/postgres/schema"
+	rootPath := os.Getenv("ROOT_PROJECT_PATH")
+	schemaDirectory := filepath.Join(rootPath, "postgres", "schema")
 	for _, tableName := range TableNames() {
 		fullFileName := filepath.Join(schemaDirectory, tableName+".sql")
 		fileContent, err := ioutil.ReadFile(fullFileName)
