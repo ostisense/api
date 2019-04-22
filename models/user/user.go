@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/ostisense/api/postgres"
-	"github.com/ostisense/api/utils/string_utils"
+	stringUtils "github.com/ostisense/api/utils/string_utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,15 +22,15 @@ type dbUser struct {
 	CreatedAt        time.Time          `db:"created_at"`
 }
 
+var ErrInvalidEmail = errors.New("invalid email")
+var ErrInvalidPassword = errors.New("invalid password")
+var ErrMismatchedEmailAndPassword = errors.New("email and password do not match")
+
 // returns non-nil err unless password matches bcrypted password
 func (self *dbUser) matchesPassword(password PlainPassword) error {
 	passwordBytes := []byte(password)
 	bcryptedPasswordBytes := []byte(self.BcryptedPassword)
-	err := bcrypt.CompareHashAndPassword(bcryptedPasswordBytes, passwordBytes)
-	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return errors.New("invalid password")
-	}
-	return err
+	return bcrypt.CompareHashAndPassword(bcryptedPasswordBytes, passwordBytes)
 }
 
 func fetchDBUserByToken(token SecureToken) (*dbUser, error) {
@@ -68,7 +68,7 @@ func getBcryptedPasswordFromPassword(password PlainPassword) (bcryptedPassword B
 }
 
 func getNewToken() (token SecureToken, err error) {
-	tokenString, err := string_utils.GenerateSecureRandomString(32)
+	tokenString, err := stringUtils.GenerateSecureRandomString(32)
 	if err != nil {
 		return "", err
 	}
@@ -76,6 +76,16 @@ func getNewToken() (token SecureToken, err error) {
 }
 
 func CreateUser(email Email, password PlainPassword) (*User, error) {
+	isValidEmail := stringUtils.IsValidEmail(string(email))
+	if !isValidEmail {
+		return nil, ErrInvalidEmail
+	}
+
+	isValidPassword := stringUtils.IsValidPassword(string(password))
+	if !isValidPassword {
+		return nil, ErrInvalidPassword
+	}
+
 	bcryptedPassword, err := getBcryptedPasswordFromPassword(password)
 	if err != nil {
 		return nil, err
@@ -122,11 +132,11 @@ func FetchUserByEmail(email Email) (*User, error) {
 func FetchUserByEmailMatchingPassword(email Email, password PlainPassword) (*User, error) {
 	dbUser, err := fetchDBUserByEmail(email)
 	if err != nil {
-		return nil, err
+		return nil, ErrMismatchedEmailAndPassword
 	}
 	err = dbUser.matchesPassword(password)
 	if err != nil {
-		return nil, err
+		return nil, ErrMismatchedEmailAndPassword
 	}
 	return makeUserFromDBUser(dbUser), nil
 }
