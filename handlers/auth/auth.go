@@ -20,6 +20,13 @@ func PostAuthSignupHandler(context *gin.Context) {
 	body := &postAuthSignupBody{}
 	context.BindJSON(body)
 
+	existingUser, _ := userModel.FetchUserByEmail(body.Email)
+	if existingUser != nil {
+		err := errors.New("user already exists")
+		ginUtils.AbortAndRespondError(context, http.StatusUnauthorized, err)
+		return
+	}
+
 	user, err := userModel.CreateUser(body.Email, body.Password)
 	if err != nil {
 		ginUtils.AbortAndRespondError(context, http.StatusBadRequest, err)

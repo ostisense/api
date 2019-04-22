@@ -26,7 +26,11 @@ type dbUser struct {
 func (self *dbUser) matchesPassword(password PlainPassword) error {
 	passwordBytes := []byte(password)
 	bcryptedPasswordBytes := []byte(self.BcryptedPassword)
-	return bcrypt.CompareHashAndPassword(bcryptedPasswordBytes, passwordBytes)
+	err := bcrypt.CompareHashAndPassword(bcryptedPasswordBytes, passwordBytes)
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return errors.New("invalid password")
+	}
+	return err
 }
 
 func fetchDBUserByToken(token SecureToken) (*dbUser, error) {
