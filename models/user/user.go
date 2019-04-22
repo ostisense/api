@@ -19,6 +19,7 @@ type dbUser struct {
 	Email            Email              `db:"email"`
 	BcryptedPassword BCryptedPassword   `db:"bcrypted_password"`
 	Token            SecureToken        `db:"token"`
+	CreatedAt        time.Time          `db:"created_at"`
 }
 
 // returns non-nil err unless password matches bcrypted password

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	userModel "github.com/ostisense/api/models/user"
+	ginUtils "github.com/ostisense/api/utils/gin_utils"
 )
 
 type postAuthSignupBody struct {
@@ -21,7 +22,8 @@ func PostAuthSignupHandler(context *gin.Context) {
 
 	user, err := userModel.CreateUser(body.Email, body.Password)
 	if err != nil {
-		context.AbortWithError(http.StatusBadRequest, err)
+		ginUtils.AbortAndRespondError(context, http.StatusBadRequest, err)
+		return
 	}
 
 	context.IndentedJSON(http.StatusOK, gin.H{
@@ -40,7 +42,8 @@ func PostAuthLoginHandler(context *gin.Context) {
 
 	user, err := userModel.FetchUserByEmailMatchingPassword(body.Email, body.Password)
 	if err != nil {
-		context.AbortWithError(http.StatusUnauthorized, err)
+		ginUtils.AbortAndRespondError(context, http.StatusUnauthorized, err)
+		return
 	}
 
 	context.IndentedJSON(http.StatusOK, gin.H{
@@ -60,15 +63,18 @@ func RequireUserMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		token, err := getUserTokenFromHeader(context)
 		if err != nil {
-			context.AbortWithError(http.StatusUnauthorized, err)
+			ginUtils.AbortAndRespondError(context, http.StatusUnauthorized, err)
+			return
 		}
 		user, err := userModel.FetchUserByToken(token)
 		if err != nil {
-			context.AbortWithError(http.StatusUnauthorized, err)
+			ginUtils.AbortAndRespondError(context, http.StatusUnauthorized, err)
+			return
 		}
 		err = user.Validate()
 		if err != nil {
-			context.AbortWithError(http.StatusUnauthorized, err)
+			ginUtils.AbortAndRespondError(context, http.StatusUnauthorized, err)
+			return
 		}
 
 		context.Set("user", user)
